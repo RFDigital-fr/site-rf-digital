@@ -168,7 +168,8 @@ function applyPalette(name) {
   TONE.value = dark ? 1 : 0;
   bloom.strength = dark ? 0.45 : 0.0;
   bloom.threshold = dark ? 0.9 : 1.0;
-  look.coreBase = dark ? 0.9 : 0.25;
+  // core glow intensity: same in light and dark (étape 3 : 0.9 -> 0.25 in dark, so the core reads #0BBEF3-ish in both themes)
+  look.coreBase = 0.25;
   for (const m of meshes) {
     m.material.envMapIntensity = m.userData.kind === 'facette' ? (dark ? 0.45 : 0.35) : (dark ? 0.3 : 0.2);
     m.material.needsUpdate = true;
