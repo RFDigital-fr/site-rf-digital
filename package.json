@@ -1,0 +1,14 @@
+{
+  "name": "site-rf-digital",
+  "private": true,
+  "description": "Outils de construction du site rf-digital.fr (le site publié n'en dépend pas).",
+  "scripts": {
+    "build": "esbuild src/logo-3d.js --bundle --minify --format=iife --target=es2019 --legal-comments=eof --outfile=assets/js/logo-3d.min.js"
+  },
+  "devDependencies": {
+    "esbuild": "0.24.2",
+    "three": "0.160.0",
+    "@fontsource/inter": "5.1.1",
+    "@fontsource/montserrat": "5.1.1"
+  }
+}

@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" role="img" aria-label="RF Digital - favicon">
+  <title>RF Digital - favicon</title>
+  <g id="symbole">
+    <path id="noyau" fill="#00C8FF" d="M128.00 94.22 L94.22 128.00 L128.00 161.78 L161.78 128.00 Z"/>
+    <path id="facette-haut-droite" fill="#0B0B0C" d="M135.00 40.90 L135.00 81.42 L174.58 121.00 L215.10 121.00 Z"/>
+    <path id="facette-bas-droite" fill="#3A3F48" d="M215.10 135.00 L174.58 135.00 L135.00 174.58 L135.00 215.10 Z"/>
+    <path id="facette-bas-gauche" fill="#0B0B0C" d="M121.00 215.10 L121.00 174.58 L81.42 135.00 L40.90 135.00 Z"/>
+    <path id="facette-haut-gauche" fill="#3A3F48" d="M40.90 121.00 L81.42 121.00 L121.00 81.42 L121.00 40.90 Z"/>
+  </g>
+</svg>
