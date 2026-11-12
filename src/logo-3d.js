@@ -4,6 +4,8 @@
 // Retirés : boutons, export .glb, OrbitControls (rotation à la souris), zoom, mémorisation propre au logo.
 // Ajouts : rendu dans le conteneur #logo-3d (ResizeObserver), fond transparent, couleurs qui suivent le thème du site,
 // pause hors écran, l'assemblage démarre quand le bloc devient visible.
+// Étape 2b (lettrage) : mêmes tracés, lettres opaques une fois posées, un peu plus épaisses, anticrénelage (MSAA)
+// dans la chaîne de rendu, balancement réduit sur le texte ; en sombre, le noyau n'a plus l'effet filmique (cyan exact).
 // Construction : `npm run build` (esbuild) -> assets/js/logo-3d.min.js (Three.js 0.160.0 inclus, aucun appel externe).
 
 import * as THREE from 'three';
@@ -28,7 +30,10 @@ const PALETTES = {
   sombre: { bg: '#0A0D14', main: '#3E4653', mid: '#66707F', accent: '#00C8FF', text: '#E9ECF1' },
 };
 const CENTRE = { x: 128, y: 150 };          // centre of the full logo (prism + wordmark) in SVG units
-const DEPTH = { facette: 22, noyau: 28, lettre: 6 };
+const DEPTH = { facette: 22, noyau: 28, lettre: 9 };   // lettre : 6 -> 9 (étape 2b, lettres un peu plus épaisses)
+const LETTER_BEVEL = { bevelThickness: 0.5, bevelSize: 0.28, bevelSegments: 2 };  // léger chanfrein : traits un peu plus pleins
+const TEXT_SWAY = 0.4;                      // part du balancement appliquée au lettrage (1 = comme le symbole)
+const TEXT_Y = 269 - CENTRE.y;              // centre vertical du lettrage, en unités SVG
 const look = { coreBase: 0.9 };
 const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -58,6 +63,41 @@ const logo = new THREE.Group();          // whole logo, flipped from SVG coordin
 const sway = new THREE.Group();          // idle motion
 sway.add(logo); scene.add(sway);
 logo.scale.set(1, -1, 1);
+// wordmark in its own pivot (centred on the text) so its sway can be reduced; same positions as in `logo`
+const textPivot = new THREE.Group(); textPivot.position.set(0, -TEXT_Y, 0); sway.add(textPivot);
+const textLogo = new THREE.Group(); textLogo.scale.set(1, -1, 1); textLogo.position.set(0, TEXT_Y, 0); textPivot.add(textLogo);
+
+// Dark mode: filmic tone mapping (ACES, exposure 1.05) applied per material to facets and letters only,
+// so the cyan core keeps its exact colour. Same formula as Three.js 0.160 ACESFilmicToneMapping.
+const TONE = { value: 0 };
+const EXPOSURE = { value: 1.05 };
+function filmic(material) {
+  material.onBeforeCompile = (shader) => {
+    shader.uniforms.rfTone = TONE;
+    shader.uniforms.rfExposure = EXPOSURE;
+    shader.fragmentShader = shader.fragmentShader
+      .replace('#include <common>', `#include <common>
+uniform float rfTone;
+uniform float rfExposure;
+vec3 rfRRTAndODTFit( vec3 v ) {
+  vec3 a = v * ( v + 0.0245786 ) - 0.000090537;
+  vec3 b = v * ( 0.983729 * v + 0.4329510 ) + 0.238081;
+  return a / b;
+}
+vec3 rfACES( vec3 color ) {
+  const mat3 ACESInputMat = mat3( vec3( 0.59719, 0.07600, 0.02840 ), vec3( 0.35458, 0.90834, 0.13383 ), vec3( 0.04823, 0.01566, 0.83777 ) );
+  const mat3 ACESOutputMat = mat3( vec3( 1.60475, -0.10208, -0.00327 ), vec3( -0.53108, 1.10813, -0.07276 ), vec3( -0.07367, -0.00605, 1.07602 ) );
+  color *= rfExposure / 0.6;
+  color = ACESInputMat * color;
+  color = rfRRTAndODTFit( color );
+  color = ACESOutputMat * color;
+  return saturate( color );
+}`)
+      .replace('#include <tonemapping_fragment>', `#include <tonemapping_fragment>
+if ( rfTone > 0.5 ) gl_FragColor.rgb = rfACES( gl_FragColor.rgb );`);
+  };
+  return material;
+}
 
 const loader = new SVGLoader();
 const svgText = `<svg xmlns="http://www.w3.org/2000/svg">${PIECES.map(p => `<path id="${p.id}" d="${p.d}"/>`).join('')}</svg>`;
@@ -71,10 +111,10 @@ function materialFor(role) {
       roughness: 0.15, metalness: 0.1, clearcoat: 1, transmission: 0, transparent: true });
   }
   if (role === 'text') {
-    return new THREE.MeshStandardMaterial({ color: '#0B0B0C', roughness: 0.45, metalness: 0.2, transparent: true });
+    return filmic(new THREE.MeshStandardMaterial({ color: '#0B0B0C', roughness: 0.45, metalness: 0.2, transparent: true }));
   }
-  return new THREE.MeshPhysicalMaterial({ color: '#0B0B0C', roughness: 0.28, metalness: 0.55, clearcoat: 0.8,
-    clearcoatRoughness: 0.2, transparent: true });
+  return filmic(new THREE.MeshPhysicalMaterial({ color: '#0B0B0C', roughness: 0.28, metalness: 0.55, clearcoat: 0.8,
+    clearcoatRoughness: 0.2, transparent: true }));
 }
 
 for (const path of parsed.paths) {
@@ -85,7 +125,8 @@ for (const path of parsed.paths) {
   const shapes = SVGLoader.createShapes(path);
   const geo = new THREE.ExtrudeGeometry(shapes, {
     depth, curveSegments: 8,
-    bevelEnabled: kind !== 'lettre', bevelThickness: 1.6, bevelSize: 1.1, bevelSegments: 3,
+    bevelEnabled: true,
+    ...(kind === 'lettre' ? LETTER_BEVEL : { bevelThickness: 1.6, bevelSize: 1.1, bevelSegments: 3 }),
   });
   // centre each piece on its own centroid so it can move and spin on itself
   geo.translate(-info.cx, -info.cy, -depth / 2);
@@ -93,12 +134,13 @@ for (const path of parsed.paths) {
   mesh.name = id;
   mesh.userData = { role: info.role, kind, home: new THREE.Vector3(info.cx - CENTRE.x, info.cy - CENTRE.y, kind === 'noyau' ? 4 : 0) };
   mesh.position.copy(mesh.userData.home);
-  logo.add(mesh);
+  (kind === 'lettre' ? textLogo : logo).add(mesh);
   meshes.push(mesh);
 }
 
 // ---- post-processing: a soft glow on the cyan core ----
-const composer = new EffectComposer(renderer);
+// multisampled render target: anti-aliasing inside the post-processing chain (WebGL 2)
+const composer = new EffectComposer(renderer, new THREE.WebGLRenderTarget(1, 1, { type: THREE.HalfFloatType, samples: 4 }));
 composer.addPass(new RenderPass(scene, camera));
 const bloom = new UnrealBloomPass(new THREE.Vector2(1, 1), 0.5, 0.4, 0.82);
 // The bloom blur writes alpha = 1 everywhere, which would paint an opaque rectangle over the page.
@@ -121,8 +163,9 @@ function applyPalette(name) {
   }
   const dark = name === 'sombre';
   // light: no tone mapping so white stays white and black stays black; dark: filmic look + glow on the core
-  renderer.toneMapping = dark ? THREE.ACESFilmicToneMapping : THREE.NoToneMapping;
-  renderer.toneMappingExposure = dark ? 1.05 : 1.0;
+  // (the filmic look is now applied per material, see filmic(); the core is left out)
+  renderer.toneMapping = THREE.NoToneMapping;
+  TONE.value = dark ? 1 : 0;
   bloom.strength = dark ? 0.45 : 0.0;
   bloom.threshold = dark ? 0.9 : 1.0;
   look.coreBase = dark ? 0.9 : 0.25;
@@ -166,11 +209,17 @@ function pose() {
     const k = easeOut(clamp01((s - 1.7 - i * 0.04) / 0.7));
     m.position.set(m.userData.home.x, m.userData.home.y - 18 * (1 - k), 0);
     m.material.opacity = k;
+    // fully opaque once in place: leave the transparent pass (no residual transparency)
+    const opaque = k >= 1;
+    if (m.material.transparent === opaque) { m.material.transparent = !opaque; m.material.needsUpdate = true; }
   });
   // idle sway once assembled (slow automatic rotation)
   const idle = clamp01((s - 2.6) / 1.5);
   sway.rotation.y = Math.sin(s * 0.5) * 0.35 * idle;
   sway.rotation.x = Math.sin(s * 0.33) * 0.06 * idle;
+  // reduced sway on the wordmark
+  textPivot.rotation.y = -sway.rotation.y * (1 - TEXT_SWAY);
+  textPivot.rotation.x = -sway.rotation.x * (1 - TEXT_SWAY);
 }
 
 // ---- size of the block ----
