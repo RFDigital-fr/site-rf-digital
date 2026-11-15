@@ -1,0 +1,177 @@
+/* Démos RF Digital — démo 1 (relance de factures) et démo 3 (tri de mails).
+   Reprend le style du site : mêmes couleurs, Montserrat (titres) + Inter (texte), clair/sombre.
+   Tout est préfixé « rfd- » pour ne pas entrer en conflit avec la feuille du site.
+   Le thème suit l'attribut data-theme du site ; sans lui, le réglage du navigateur.
+   Règle du site respectée : jamais de texte cyan sur fond clair (le cyan sert de décor). */
+
+.rfd {
+  --rfd-bg: #FFFFFF;
+  --rfd-bg-alt: #F4F5F7;
+  --rfd-text: #0B0B0C;
+  --rfd-text-2: #3A3F48;
+  --rfd-line: rgba(11, 11, 12, .12);
+  --rfd-line-strong: rgba(11, 11, 12, .22);
+  --rfd-accent: #00C8FF;
+  --rfd-accent-doux: rgba(0, 200, 255, .14);
+  --rfd-btn-bg: #0B0B0C;
+  --rfd-btn-text: #FFFFFF;
+  --rfd-btn-hover: #3A3F48;
+  --rfd-focus: #0B0B0C;
+  --rfd-avatar: #3A3F48;
+  --rfd-erreur: #B42318;
+  --rfd-erreur-fond: #FEF3F2;
+  font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  color: var(--rfd-text);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .rfd {
+    --rfd-bg: #10141D; --rfd-bg-alt: #0A0D14; --rfd-text: #FFFFFF; --rfd-text-2: #B6BDC8;
+    --rfd-line: rgba(255, 255, 255, .12); --rfd-line-strong: rgba(255, 255, 255, .24);
+    --rfd-accent-doux: rgba(0, 200, 255, .16);
+    --rfd-btn-bg: #FFFFFF; --rfd-btn-text: #0A0D14; --rfd-btn-hover: #DCE1E8; --rfd-focus: #00C8FF;
+    --rfd-avatar: #3E4653; --rfd-erreur: #FDA29B; --rfd-erreur-fond: rgba(253, 162, 155, .1);
+  }
+}
+:root[data-theme="dark"] .rfd {
+  --rfd-bg: #10141D; --rfd-bg-alt: #0A0D14; --rfd-text: #FFFFFF; --rfd-text-2: #B6BDC8;
+  --rfd-line: rgba(255, 255, 255, .12); --rfd-line-strong: rgba(255, 255, 255, .24);
+  --rfd-accent-doux: rgba(0, 200, 255, .16);
+  --rfd-btn-bg: #FFFFFF; --rfd-btn-text: #0A0D14; --rfd-btn-hover: #DCE1E8; --rfd-focus: #00C8FF;
+  --rfd-avatar: #3E4653; --rfd-erreur: #FDA29B; --rfd-erreur-fond: rgba(253, 162, 155, .1);
+}
+
+.rfd *, .rfd *::before, .rfd *::after { box-sizing: border-box; }
+.rfd :focus-visible { outline: 3px solid var(--rfd-focus); outline-offset: 2px; border-radius: 6px; }
+.rfd [hidden] { display: none !important; }
+
+/* ---------- Éléments communs ---------- */
+.rfd-badge {
+  align-self: flex-start; display: inline-flex; align-items: center; gap: 8px;
+  padding: 5px 12px; border: 1px solid var(--rfd-line-strong); border-radius: 999px;
+  font-size: .78rem; font-weight: 600; letter-spacing: .02em; color: var(--rfd-text);
+}
+.rfd-badge::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--rfd-accent); }
+.rfd-titre { margin: 0; font-family: "Montserrat", "Inter", system-ui, sans-serif; font-weight: 700; font-size: 1.2rem; line-height: 1.2; letter-spacing: -.01em; color: var(--rfd-text); }
+.rfd-intro { margin: 0; color: var(--rfd-text-2); font-size: 1rem; line-height: 1.6; }
+.rfd-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  min-height: 48px; padding: 12px 22px; border: 0; border-radius: 999px;
+  background: var(--rfd-btn-bg); color: var(--rfd-btn-text);
+  font: 600 1rem/1.2 "Inter", system-ui, sans-serif; cursor: pointer;
+  transition: background-color .2s;
+}
+.rfd-btn:hover { background: var(--rfd-btn-hover); }
+.rfd-btn[disabled] { opacity: .6; cursor: progress; }
+.rfd-lien {
+  align-self: flex-start; min-height: 44px; padding: 0; border: 0; background: none; cursor: pointer;
+  font: 500 .95rem "Inter", system-ui, sans-serif; color: var(--rfd-text);
+  text-decoration: underline; text-underline-offset: .2em; text-decoration-thickness: 1px;
+}
+.rfd-sr { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+
+/* =====================================================================
+   DÉMO 1 — RELANCE DE FACTURES
+   ===================================================================== */
+.rfd-frise { list-style: none; margin: 0; padding: 0; display: grid; gap: 0; border-left: 2px solid var(--rfd-line); }
+.rfd-frise li { position: relative; display: grid; grid-template-columns: auto 1fr; column-gap: 12px; padding: 6px 0 6px 18px; }
+.rfd-frise li::before { content: ""; position: absolute; left: -6px; top: 13px; width: 10px; height: 10px; border-radius: 50%; background: var(--rfd-bg); border: 2px solid var(--rfd-line-strong); }
+.rfd-frise .rfd-num { grid-row: span 2; min-width: 1.6em; font: 700 .85rem/1.6 "Montserrat", system-ui, sans-serif; color: var(--rfd-text-2); }
+.rfd-frise strong { font-weight: 600; font-size: .95rem; }
+.rfd-frise .rfd-quand { font-size: .85rem; color: var(--rfd-text-2); }
+.rfd-frise .rfd-etat { grid-column: 2; font-size: .85rem; font-weight: 600; color: var(--rfd-text); }
+.rfd-frise li.rfd-fait::before { background: var(--rfd-accent); border-color: var(--rfd-accent); }
+
+.rfd-form { display: grid; gap: 12px; margin: 0; }
+.rfd-form label.rfd-label { font-weight: 600; font-size: .95rem; }
+.rfd-champ {
+  width: 100%; min-height: 48px; padding: 12px 14px; border: 1px solid var(--rfd-line-strong); border-radius: 10px;
+  background: var(--rfd-bg); color: var(--rfd-text); font: 400 16px/1.4 "Inter", system-ui, sans-serif; /* 16 px : pas de zoom auto sur iPhone */
+}
+.rfd-champ::placeholder { color: var(--rfd-text-2); opacity: .8; }
+.rfd-champ:focus { outline: none; border-color: var(--rfd-text); box-shadow: 0 0 0 3px var(--rfd-accent-doux); }
+.rfd-champ[aria-invalid="true"] { border-color: var(--rfd-erreur); }
+.rfd-case { display: flex; align-items: flex-start; gap: 10px; min-height: 44px; padding-top: 4px; font-size: .95rem; line-height: 1.45; cursor: pointer; }
+.rfd-case input { flex: none; width: 22px; height: 22px; margin: 0; accent-color: var(--rfd-btn-bg); cursor: pointer; }
+.rfd-piege { position: absolute !important; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+.rfd-note { margin: 0; font-size: .85rem; color: var(--rfd-text-2); line-height: 1.5; }
+.rfd-message { margin: 0; font-size: .95rem; line-height: 1.5; }
+.rfd-message:empty { display: none; }
+.rfd-message.rfd-erreur { padding: 10px 14px; border-radius: 10px; color: var(--rfd-erreur); background: var(--rfd-erreur-fond); }
+
+.rfd-suivi { display: grid; gap: 14px; padding: 16px; border: 1px solid var(--rfd-line); border-radius: 12px; background: var(--rfd-bg-alt); }
+.rfd-suivi-titre { margin: 0; font-weight: 600; font-size: 1rem; }
+.rfd-suivi .rfd-note strong { color: var(--rfd-text); }
+
+/* =====================================================================
+   DÉMO 3 — TRI DE MAILS
+   ===================================================================== */
+.rfd-scenarios { display: flex; flex-wrap: wrap; gap: 8px; }
+.rfd-scenarios button {
+  flex: none; min-height: 44px; padding: 10px 16px; border: 1px solid var(--rfd-line-strong); border-radius: 999px;
+  background: transparent; color: var(--rfd-text); font: 600 .95rem "Inter", system-ui, sans-serif; cursor: pointer;
+  transition: background-color .2s, color .2s, border-color .2s;
+}
+.rfd-scenarios button:hover { border-color: var(--rfd-text); }
+.rfd-scenarios button[aria-pressed="true"] { background: var(--rfd-btn-bg); border-color: var(--rfd-btn-bg); color: var(--rfd-btn-text); }
+
+.rfd-boite { border: 1px solid var(--rfd-line); border-radius: 12px; background: var(--rfd-bg); overflow: hidden; }
+.rfd-boite-tete { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 10px 14px; border-bottom: 1px solid var(--rfd-line); background: var(--rfd-bg-alt); font-size: .85rem; }
+.rfd-boite-tete strong { font-weight: 600; white-space: nowrap; }
+.rfd-compte { text-align: right; }
+.rfd-compte { color: var(--rfd-text-2); }
+.rfd-liste {
+  position: relative; height: min(440px, 62vh); overflow-y: auto; overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+.rfd-liste:focus-visible { outline-offset: -3px; }
+
+.rfd-mail {
+  position: relative; display: grid; grid-template-columns: 34px minmax(0, 1fr); gap: 10px;
+  padding: 10px 14px; border-bottom: 1px solid var(--rfd-line); background: var(--rfd-bg);
+  transition: opacity .25s;
+}
+.rfd-mail.rfd-urgent { box-shadow: inset 3px 0 0 var(--rfd-accent); }
+.rfd-mail.rfd-attenue { opacity: .5; }
+.rfd-avatar {
+  width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center;
+  background: var(--rfd-avatar); color: #FFFFFF; font: 600 .75rem "Inter", system-ui, sans-serif;
+}
+.rfd-mail-corps { min-width: 0; display: grid; gap: 1px; }
+.rfd-l1 { display: flex; justify-content: space-between; gap: 8px; font-size: .85rem; }
+.rfd-de { min-width: 0; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.rfd-heure { flex: none; color: var(--rfd-text-2); font-variant-numeric: tabular-nums; }
+.rfd-objet, .rfd-apercu { font-size: .85rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.rfd-objet { color: var(--rfd-text); }
+.rfd-apercu { color: var(--rfd-text-2); }
+.rfd-etiquettes { display: flex; flex-wrap: wrap; gap: 4px; }
+.rfd-etiquettes:empty { display: none; }
+.rfd-etiquettes span { margin-top: 4px; padding: 1px 8px; border-radius: 999px; font-size: .72rem; font-weight: 600; line-height: 1.6; border: 1px solid var(--rfd-line-strong); color: var(--rfd-text); }
+.rfd-etiquettes .rfd-e-urgent { background: var(--rfd-accent); border-color: var(--rfd-accent); color: #0B0B0C; }
+.rfd-etiquettes .rfd-e-pub { color: var(--rfd-text-2); border-style: dashed; }
+
+.rfd-groupe {
+  position: relative; padding: 8px 14px 6px; border-bottom: 1px solid var(--rfd-line);
+  background: var(--rfd-bg-alt); font: 700 .72rem/1.4 "Montserrat", system-ui, sans-serif;
+  letter-spacing: .08em; text-transform: uppercase; color: var(--rfd-text-2);
+}
+
+.rfd-ecartes { border-top: 1px solid var(--rfd-line); background: var(--rfd-bg-alt); }
+.rfd-ecartes > button {
+  width: 100%; min-height: 44px; padding: 10px 14px; border: 0; background: none; text-align: left; cursor: pointer;
+  font: 500 .85rem "Inter", system-ui, sans-serif; color: var(--rfd-text-2); display: flex; justify-content: space-between; align-items: center;
+}
+.rfd-ecartes > button::after { content: "+"; font-size: 1.1rem; line-height: 1; }
+.rfd-ecartes > button[aria-expanded="true"]::after { content: "−"; }
+.rfd-ecartes-liste .rfd-mail { opacity: .55; }
+
+.rfd-resume { margin: 0; font-size: .95rem; line-height: 1.5; color: var(--rfd-text); }
+.rfd-resume:empty { display: none; }
+
+@media (max-width: 420px) {
+  .rfd-apercu { display: none; }
+  .rfd-mail { padding: 10px 12px; }
+}

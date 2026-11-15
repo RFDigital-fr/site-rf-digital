@@ -5,7 +5,7 @@
      false = section « Démos » et lien du menu masqués
      true  = section et lien affichés
      ========================================================== */
-  var DEMOS = false;
+  var DEMOS = true;
 
   var root = document.documentElement;
   root.setAttribute('data-demos', DEMOS ? 'on' : 'off');

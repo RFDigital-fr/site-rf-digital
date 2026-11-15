@@ -29,8 +29,16 @@
 <link rel="preload" href="/assets/fonts/montserrat-latin-700-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/assets/fonts/inter-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="/assets/css/style.css">
+<link rel="stylesheet" href="/assets/css/demos.css">
+<link rel="stylesheet" href="/assets/css/demo-annonce.css">
+<link rel="stylesheet" href="/assets/css/demo-telegram.css">
 <script src="/assets/js/main.js" defer></script>
 <script src="/assets/js/compteur.js" data-page="accueil" defer></script>
+<script src="/assets/js/demo-annonce-photo.js" defer></script>
+<script src="/assets/js/demo-annonce.js" defer></script>
+<script src="/assets/js/demo-relance.js" defer></script>
+<script src="/assets/js/demo-tri-donnees.js" defer></script>
+<script src="/assets/js/demo-tri.js" defer></script>
 </head>
 <body>
 <a class="skip" href="#contenu">Aller au contenu</a>
@@ -187,24 +195,181 @@
       </div>
       <div class="grid grid-2">
         <article class="card demo">
-          <span class="tag">Démo</span>
-          <h3>Relance de factures</h3>
-          <p>Indiquez votre adresse et recevez un vrai mail de relance, envoyé automatiquement.</p>
+          <div class="rfd rfd-annonce" data-rfd-annonce data-endpoint="https://nbwlhdyeektezpvhjaih.supabase.co/functions/v1/demo-annonce">
+            <span class="rfd-badge">Démo RF Digital</span>
+            <h3 class="rfd-titre">Création d’annonces</h3>
+            <p class="rfd-intro">Une photo de votre produit, et l’annonce s’écrit toute seule : titre, description, prix conseillés, puis publication simulée sur 3&nbsp;plateformes.</p>
+
+            <!-- 1. Photo + choix -->
+            <form class="rfd-a-form" novalidate>
+              <div class="rfd-a-photo">
+                <input class="rfd-sr" id="rfd-annonce-fichier" type="file" accept="image/jpeg,image/png,image/heic,image/heif,.jpg,.jpeg,.png,.heic,.heif">
+                <label class="rfd-a-depot" for="rfd-annonce-fichier" data-zone>
+                  <span class="rfd-a-icone" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>
+                  </span>
+                  <span class="rfd-a-depot-texte"><strong>Prendre ou choisir une photo</strong><span>JPG, PNG ou HEIC · 5&nbsp;Mo au maximum</span></span>
+                </label>
+                <figure class="rfd-a-vignette" hidden>
+                  <img alt="Votre photo">
+                  <figcaption><label class="rfd-lien" for="rfd-annonce-fichier">Changer de photo</label></figcaption>
+                </figure>
+              </div>
+              <p class="rfd-note">Votre photo est analysée puis effacée aussitôt. Elle n’est jamais conservée.</p>
+
+              <fieldset class="rfd-a-choix" data-choix-etat>
+                <legend>Le produit est…</legend>
+                <div class="rfd-a-pastilles">
+                  <label><input type="radio" name="rfd-a-type" value="neuf" checked><span>Neuf</span></label>
+                  <label><input type="radio" name="rfd-a-type" value="occasion"><span>Occasion</span></label>
+                </div>
+                <div class="rfd-a-pastilles rfd-a-etats" hidden>
+                  <label><input type="radio" name="rfd-a-etat" value="comme_neuf" checked><span>Comme neuf</span></label>
+                  <label><input type="radio" name="rfd-a-etat" value="tres_bon"><span>Très bon état</span></label>
+                  <label><input type="radio" name="rfd-a-etat" value="bon"><span>Bon état</span></label>
+                  <label><input type="radio" name="rfd-a-etat" value="correct"><span>État correct</span></label>
+                </div>
+              </fieldset>
+
+              <fieldset class="rfd-a-choix">
+                <legend>Votre stratégie de prix</legend>
+                <div class="rfd-a-strategies">
+                  <label><input type="radio" name="rfd-a-strategie" value="rapide"><span><strong>Vendre vite</strong><small>nettement sous le marché</small></span></label>
+                  <label><input type="radio" name="rfd-a-strategie" value="marche" checked><span><strong>Prix du marché</strong><small>le prix habituel</small></span></label>
+                  <label><input type="radio" name="rfd-a-strategie" value="haut"><span><strong>Un peu au-dessus</strong><small>prendre son temps</small></span></label>
+                </div>
+              </fieldset>
+
+              <div class="rfd-piege" aria-hidden="true">
+                <label>Ne pas remplir ce champ <input type="text" name="site_web" tabindex="-1" autocomplete="off"></label>
+              </div>
+              <button class="rfd-btn" type="submit">Créer l’annonce</button>
+              <p class="rfd-message" role="status" aria-live="polite"></p>
+            </form>
+
+            <!-- 2. Analyse en cours -->
+            <div class="rfd-a-analyse" hidden>
+              <div class="rfd-a-squelette" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
+              <p class="rfd-a-etape" role="status" aria-live="polite">Analyse de la photo…</p>
+            </div>
+
+            <!-- 3. Annonce rédigée -->
+            <article class="rfd-a-annonce" hidden>
+              <div class="rfd-a-annonce-tete">
+                <img class="rfd-a-annonce-img" alt="">
+                <div>
+                  <p class="rfd-a-meta"></p>
+                  <h4 class="rfd-a-annonce-titre" tabindex="-1"></h4>
+                </div>
+              </div>
+              <p class="rfd-a-description"></p>
+
+              <div class="rfd-a-prix" role="group" aria-label="Prix conseillés"></div>
+              <p class="rfd-note">Les prix sont des estimations indicatives, calculées à partir de la photo et de l’état indiqué.</p>
+
+              <table class="rfd-a-plateformes">
+                <caption>Prix publié sur chaque plateforme <span>(frais vendeur fictifs inclus)</span></caption>
+                <thead><tr><th scope="col">Plateforme</th><th scope="col">Frais</th><th scope="col">Prix affiché</th></tr></thead>
+                <tbody></tbody>
+              </table>
+
+              <button class="rfd-btn" type="button" data-publier>Publier sur les 3 plateformes (simulation)</button>
+            </article>
+
+            <!-- 4. Simulation : publication, vues, message, vente, stock -->
+            <section class="rfd-a-simu" hidden aria-label="Simulation sur 3 plateformes fictives">
+              <p class="rfd-a-stock">Stock : <strong data-stock>1</strong> article</p>
+              <ul class="rfd-a-cartes"></ul>
+              <p class="rfd-a-annonce-direct rfd-sr" role="status" aria-live="polite"></p>
+              <div class="rfd-a-fin" hidden>
+                <p class="rfd-resume">Annonce rédigée, publiée 3&nbsp;fois, vendue, retirée partout : aucune action manuelle.</p>
+                <p class="rfd-a-cta"><strong>Vous voulez la même chose pour vos produits ?</strong> <a href="#contact">Parlons-en →</a></p>
+                <button class="rfd-lien" type="button" data-rejouer>Rejouer la simulation</button>
+              </div>
+            </section>
+          </div>
         </article>
         <article class="card demo">
-          <span class="tag">Démo</span>
-          <h3>Annonce à partir d’une photo</h3>
-          <p>Une seule photo suffit : l’annonce est rédigée et prête à être publiée.</p>
+          <div class="rfd rfd-relance" data-rfd-relance data-endpoint="https://nbwlhdyeektezpvhjaih.supabase.co/functions/v1/demo-relance">
+            <span class="rfd-badge">Démo RF Digital</span>
+            <h3 class="rfd-titre">Relance de factures</h3>
+            <p class="rfd-intro">Recevez le scénario complet d’une facture en attente : 3 mails de relance envoyés automatiquement, à 2&nbsp;minutes d’intervalle. Facture fictive de l’Atelier Martin, 480&nbsp;€.</p>
+
+            <ol class="rfd-frise" aria-label="Les 3 mails de la démonstration">
+              <li><span class="rfd-num">01</span><strong>Rappel courtois</strong><span class="rfd-quand">3 jours avant l’échéance</span></li>
+              <li><span class="rfd-num">02</span><strong>Relance le jour J</strong><span class="rfd-quand">le jour de l’échéance</span></li>
+              <li><span class="rfd-num">03</span><strong>Relance plus ferme</strong><span class="rfd-quand">7 jours après l’échéance</span></li>
+            </ol>
+
+            <form class="rfd-form" novalidate>
+              <label class="rfd-label" for="rfd-relance-email">Votre adresse e-mail</label>
+              <input class="rfd-champ" id="rfd-relance-email" type="email" name="email" autocomplete="email" inputmode="email" autocapitalize="off" spellcheck="false" placeholder="prenom@entreprise.fr" required>
+              <div class="rfd-piege" aria-hidden="true">
+                <label>Ne pas remplir ce champ <input type="text" name="site_web" tabindex="-1" autocomplete="off"></label>
+              </div>
+              <label class="rfd-case">
+                <input type="checkbox" name="accord" required>
+                <span>J’accepte de recevoir 3 mails de démonstration</span>
+              </label>
+              <button class="rfd-btn" type="submit">Lancer la démo</button>
+              <p class="rfd-note">Votre adresse sert uniquement à cet envoi. Aucun autre mail ne suivra.</p>
+              <p class="rfd-message" role="status" aria-live="polite"></p>
+            </form>
+
+            <div class="rfd-suivi" hidden>
+              <p class="rfd-suivi-titre">C’est parti !</p>
+              <p class="rfd-note">Le 1<sup>er</sup> mail arrive dans un instant, le 2<sup>e</sup> dans 2&nbsp;minutes, le 3<sup>e</sup> dans 4&nbsp;minutes. <strong>Pensez à regarder vos indésirables.</strong></p>
+            </div>
+          </div>
         </article>
         <article class="card demo">
-          <span class="tag">Démo</span>
-          <h3>Tri des mails</h3>
-          <p>Une boîte de réception se classe sous vos yeux et les messages importants ressortent.</p>
+          <div class="rfd rfd-tri" data-rfd-tri>
+            <span class="rfd-badge">Démo RF Digital</span>
+            <h3 class="rfd-titre">Tri de mails</h3>
+            <p class="rfd-intro">Une boîte de réception fictive se trie sous vos yeux. Choisissez ce que vous voulez voir en priorité&nbsp;:</p>
+
+            <div class="rfd-scenarios" role="group" aria-label="Scénarios de tri">
+              <button type="button" data-scenario="opportunites" aria-pressed="false">Opportunités</button>
+              <button type="button" data-scenario="fournisseurs" aria-pressed="false">Fournisseurs</button>
+              <button type="button" data-scenario="clients" aria-pressed="false">Suivi clients</button>
+            </div>
+
+            <div class="rfd-boite">
+              <div class="rfd-boite-tete"><strong>Boîte de réception</strong><span class="rfd-compte"></span></div>
+              <div class="rfd-liste" tabindex="0" aria-label="Boîte de réception fictive"></div>
+              <div class="rfd-ecartes" hidden>
+                <button type="button" aria-expanded="false"><span></span></button>
+                <div class="rfd-ecartes-liste" hidden></div>
+              </div>
+            </div>
+
+            <p class="rfd-resume" role="status" aria-live="polite"></p>
+            <button type="button" class="rfd-lien rfd-reinit" hidden>Revenir à la boîte d’origine</button>
+          </div>
         </article>
         <article class="card demo">
-          <span class="tag">Démo</span>
-          <h3>Assistant sur messagerie</h3>
-          <p>Posez vos questions sur les ventes ou le stock d’une entreprise fictive et recevez un mini-rapport.</p>
+          <div class="rfd rfd-telegram">
+            <span class="rfd-badge">Démo RF Digital</span>
+            <h3 class="rfd-titre">Assistant sur messagerie</h3>
+            <p class="rfd-intro">Un simple message, et la tâche est prise en charge. Vous êtes le patron de l’Atelier Martin, ébéniste (entreprise fictive)&nbsp;: écrivez à votre assistant via Telegram comme à un collaborateur. Il prépare vos documents, tient votre agenda et vous alerte en cas d’urgence.</p>
+
+            <ul class="rfd-t-usages" aria-label="Ce que fait l’assistant">
+              <li><span class="rfd-t-num">01</span><strong>Devis et factures</strong><span>« Devis pour M. Dupont, table en chêne 180&nbsp;cm » : PDF fictif prêt à envoyer.</span></li>
+              <li><span class="rfd-t-num">02</span><strong>Agenda</strong><span>« Note jeudi 14&nbsp;h chez Mme Leroy » : rendez-vous noté, conflits signalés.</span></li>
+              <li><span class="rfd-t-num">03</span><strong>Urgences</strong><span>Rappel à l’heure dite, et alerte quand un client écrit pour un problème urgent.</span></li>
+            </ul>
+
+            <div class="rfd-t-acces">
+              <a class="rfd-btn rfd-t-btn" href="https://t.me/RFDigitalDemoBot" target="_blank" rel="noopener">Ouvrir l’assistant dans Telegram</a>
+              <figure class="rfd-t-qr">
+                <img src="/assets/img/demo-telegram-qr.svg" width="148" height="148" alt="QR code qui ouvre l’assistant de démonstration RF Digital" loading="lazy" decoding="async">
+                <figcaption>Sur ordinateur, scannez ce code avec votre téléphone.</figcaption>
+              </figure>
+            </div>
+
+            <p class="rfd-note">Messages écrits uniquement, 10 par jour. Documents et agenda fictifs ; tout est effacé au bout de 24&nbsp;h, ou tout de suite avec /effacer.</p>
+            <p class="rfd-t-cta"><strong>Un assistant comme celui-ci pour votre entreprise ?</strong> <a href="#contact">Parlons-en →</a></p>
+          </div>
         </article>
       </div>
     </div>

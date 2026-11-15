@@ -1,0 +1,129 @@
+/* Démos RF Digital — démo 2 « Création d'annonces ».
+   À charger APRÈS demos.css : réutilise ses variables --rfd-… (clair/sombre) et ses éléments communs.
+   Préfixe « rfd-a- ». Jamais de texte cyan sur fond clair (le cyan sert de décor). Pensé d'abord pour l'iPhone. */
+
+.rfd-annonce { --rfd-a-p1: #3A3F48; --rfd-a-p2: #00C8FF; --rfd-a-p3: #0B0B0C; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .rfd-annonce { --rfd-a-p1: #66707F; --rfd-a-p3: #3E4653; } }
+:root[data-theme="dark"] .rfd-annonce { --rfd-a-p1: #66707F; --rfd-a-p3: #3E4653; }
+
+.rfd-a-form { display: grid; gap: 16px; margin: 0; }
+
+/* ---------- Photo ---------- */
+.rfd-a-depot {
+  display: flex; align-items: center; gap: 14px; min-height: 88px; padding: 16px;
+  border: 1.5px dashed var(--rfd-line-strong); border-radius: 14px; background: var(--rfd-bg-alt);
+  cursor: pointer; transition: border-color .2s, background-color .2s;
+}
+.rfd-a-depot:hover, .rfd-a-depot.rfd-a-survol { border-color: var(--rfd-text); }
+#rfd-annonce-fichier:focus-visible + .rfd-a-depot { outline: 3px solid var(--rfd-focus); outline-offset: 2px; }
+.rfd-a-icone { flex: none; display: grid; place-items: center; width: 52px; height: 52px; border-radius: 50%; background: var(--rfd-bg); border: 1px solid var(--rfd-line); color: var(--rfd-text); }
+.rfd-a-depot-texte { display: grid; gap: 2px; }
+.rfd-a-depot-texte strong { font-weight: 600; font-size: 1rem; }
+.rfd-a-depot-texte span { font-size: .85rem; color: var(--rfd-text-2); }
+.rfd-a-vignette { margin: 0; display: flex; align-items: center; gap: 14px; }
+.rfd-a-vignette img { width: 96px; height: 96px; object-fit: cover; border-radius: 12px; border: 1px solid var(--rfd-line); background: var(--rfd-bg-alt); }
+.rfd-a-vignette figcaption .rfd-lien { min-height: 44px; display: inline-flex; align-items: center; }
+
+/* ---------- Choix ---------- */
+.rfd-a-choix { margin: 0; padding: 0; border: 0; min-width: 0; display: grid; gap: 8px; }
+.rfd-a-choix legend { padding: 0; margin-bottom: 8px; font-weight: 600; font-size: .95rem; }
+.rfd-a-pastilles { display: flex; flex-wrap: wrap; gap: 8px; }
+.rfd-a-pastilles label, .rfd-a-strategies label { position: relative; cursor: pointer; }
+.rfd-a-pastilles input, .rfd-a-strategies input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.rfd-a-pastilles span {
+  display: inline-flex; align-items: center; min-height: 44px; padding: 10px 16px;
+  border: 1px solid var(--rfd-line-strong); border-radius: 999px; font-weight: 600; font-size: .95rem;
+  transition: background-color .2s, color .2s, border-color .2s;
+}
+.rfd-a-pastilles input:checked + span { background: var(--rfd-btn-bg); border-color: var(--rfd-btn-bg); color: var(--rfd-btn-text); }
+.rfd-a-pastilles input:focus-visible + span, .rfd-a-strategies input:focus-visible + span { outline: 3px solid var(--rfd-focus); outline-offset: 2px; }
+.rfd-a-strategies { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.rfd-a-strategies span {
+  display: grid; gap: 2px; height: 100%; min-height: 64px; padding: 10px 12px;
+  border: 1px solid var(--rfd-line-strong); border-radius: 12px; transition: border-color .2s, box-shadow .2s;
+}
+.rfd-a-strategies strong { font-size: .92rem; font-weight: 600; }
+.rfd-a-strategies small { font-size: .8rem; color: var(--rfd-text-2); }
+.rfd-a-strategies input:checked + span { border-color: var(--rfd-text); box-shadow: inset 0 0 0 1px var(--rfd-text), inset 4px 0 0 var(--rfd-accent); }
+@media (max-width: 480px) { .rfd-a-strategies { grid-template-columns: 1fr; } .rfd-a-strategies span { min-height: 52px; } }
+
+/* ---------- Analyse ---------- */
+.rfd-a-analyse { display: grid; gap: 12px; padding: 16px; border: 1px solid var(--rfd-line); border-radius: 12px; background: var(--rfd-bg-alt); }
+.rfd-a-squelette { display: grid; gap: 8px; }
+.rfd-a-squelette span { height: 12px; border-radius: 6px; background: var(--rfd-line); animation: rfd-a-pulse 1.4s ease-in-out infinite; }
+.rfd-a-squelette span:nth-child(1) { width: 60%; height: 16px; }
+.rfd-a-squelette span:nth-child(2) { width: 95%; }
+.rfd-a-squelette span:nth-child(3) { width: 88%; }
+.rfd-a-squelette span:nth-child(4) { width: 40%; }
+.rfd-a-etape { margin: 0; font-weight: 600; font-size: .95rem; }
+@keyframes rfd-a-pulse { 50% { opacity: .45; } }
+
+/* ---------- Annonce ---------- */
+.rfd-a-annonce { display: grid; gap: 14px; }
+.rfd-a-annonce-tete { display: grid; grid-template-columns: 72px minmax(0, 1fr); gap: 14px; align-items: center; }
+.rfd-a-annonce-img { width: 72px; height: 72px; object-fit: cover; border-radius: 10px; border: 1px solid var(--rfd-line); }
+.rfd-a-meta { margin: 0 0 2px; font-size: .8rem; font-weight: 600; color: var(--rfd-text-2); }
+.rfd-a-annonce-titre { margin: 0; font: 700 1.05rem/1.3 "Montserrat", "Inter", system-ui, sans-serif; overflow-wrap: anywhere; }
+.rfd-a-annonce-titre:focus { outline: none; }
+.rfd-a-description { margin: 0; font-size: .95rem; line-height: 1.6; color: var(--rfd-text); }
+
+.rfd-a-prix { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.rfd-a-niveau { display: grid; gap: 2px; padding: 10px 12px; border: 1px solid var(--rfd-line); border-radius: 12px; }
+.rfd-a-niveau .rfd-a-nom { font-size: .8rem; color: var(--rfd-text-2); font-weight: 600; }
+.rfd-a-niveau .rfd-a-montant { font: 700 1.15rem/1.3 "Montserrat", system-ui, sans-serif; font-variant-numeric: tabular-nums; }
+.rfd-a-niveau .rfd-a-indic { font-size: .72rem; color: var(--rfd-text-2); }
+.rfd-a-niveau.rfd-a-retenu { border-color: var(--rfd-text); box-shadow: inset 0 3px 0 var(--rfd-accent); }
+.rfd-a-niveau .rfd-a-choisi { font-size: .72rem; font-weight: 600; }
+
+.rfd-a-plateformes { width: 100%; border-collapse: collapse; font-size: .9rem; }
+.rfd-a-plateformes caption { text-align: left; font-weight: 600; font-size: .95rem; padding-bottom: 8px; }
+.rfd-a-plateformes caption span { font-weight: 400; color: var(--rfd-text-2); font-size: .85rem; }
+.rfd-a-plateformes th, .rfd-a-plateformes td { padding: 8px 6px; border-bottom: 1px solid var(--rfd-line); text-align: left; }
+.rfd-a-plateformes th { font-size: .78rem; color: var(--rfd-text-2); font-weight: 600; }
+.rfd-a-plateformes td:last-child, .rfd-a-plateformes th:last-child { text-align: right; }
+.rfd-a-plateformes td:last-child strong { font-variant-numeric: tabular-nums; }
+.rfd-a-plateformes td:last-child small { display: block; font-size: .72rem; color: var(--rfd-text-2); }
+.rfd-a-nomplat { display: inline-flex; align-items: center; gap: 8px; font-weight: 600; }
+
+/* Pastilles des plateformes fictives (initiale sur un rond de couleur) */
+.rfd-a-logo { flex: none; display: inline-grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; font: 700 .78rem "Montserrat", system-ui, sans-serif; color: #FFFFFF; }
+.rfd-a-logo[data-p="brocantia"] { background: var(--rfd-a-p1); }
+.rfd-a-logo[data-p="ventelia"] { background: var(--rfd-a-p2); color: #0B0B0C; }
+.rfd-a-logo[data-p="kiosquo"] { background: var(--rfd-a-p3); }
+
+/* ---------- Simulation ---------- */
+.rfd-a-simu { display: grid; gap: 12px; }
+.rfd-a-stock { margin: 0; font-size: .95rem; }
+.rfd-a-stock strong { font-variant-numeric: tabular-nums; }
+.rfd-a-cartes { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.rfd-a-carte { display: grid; gap: 6px; padding: 12px 14px; border: 1px solid var(--rfd-line); border-radius: 12px; background: var(--rfd-bg); transition: opacity .4s, border-color .3s; }
+.rfd-a-carte-l1 { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.rfd-a-carte-prix { font-weight: 600; font-variant-numeric: tabular-nums; }
+.rfd-a-statut { justify-self: start; padding: 2px 10px; border-radius: 999px; font-size: .78rem; font-weight: 600; border: 1px solid var(--rfd-line-strong); }
+.rfd-a-statut[data-s="en_ligne"] { border-color: var(--rfd-accent); box-shadow: inset 3px 0 0 var(--rfd-accent); }
+.rfd-a-statut[data-s="vendu"] { background: var(--rfd-btn-bg); border-color: var(--rfd-btn-bg); color: var(--rfd-btn-text); }
+.rfd-a-statut[data-s="retiree"] { border-style: dashed; color: var(--rfd-text-2); }
+.rfd-a-vues { font-size: .82rem; color: var(--rfd-text-2); font-variant-numeric: tabular-nums; }
+.rfd-a-msg { margin: 2px 0 0; padding: 8px 12px; border-radius: 12px 12px 12px 4px; background: var(--rfd-bg-alt); font-size: .88rem; line-height: 1.45; }
+.rfd-a-msg b { display: block; font-size: .75rem; color: var(--rfd-text-2); font-weight: 600; }
+.rfd-a-carte.rfd-a-vendu { border-color: var(--rfd-text); }
+.rfd-a-carte.rfd-a-retiree { opacity: .55; }
+.rfd-a-apparait { animation: rfd-a-entree .35s ease-out both; }
+@keyframes rfd-a-entree { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+.rfd-a-fin { display: grid; gap: 8px; padding-top: 4px; }
+.rfd-a-cta { margin: 0; font-size: .95rem; }
+.rfd-a-cta a { color: var(--rfd-text); font-weight: 600; text-underline-offset: .2em; }
+
+@media (max-width: 420px) {
+  .rfd-a-prix { grid-template-columns: 1fr; }
+  .rfd-a-niveau { grid-template-columns: 1fr auto; align-items: baseline; column-gap: 8px; }
+  .rfd-a-niveau .rfd-a-montant { grid-row: span 2; grid-column: 2; text-align: right; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rfd-a-squelette span { animation: none; }
+  .rfd-a-apparait { animation: rfd-a-fondu .15s linear both; }
+  .rfd-a-carte, .rfd-a-pastilles span, .rfd-a-strategies span { transition: none; }
+}
+@keyframes rfd-a-fondu { from { opacity: 0; } to { opacity: 1; } }

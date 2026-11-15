@@ -1,0 +1,35 @@
+/* Démos RF Digital — démo 4 « Assistant sur Telegram ».
+   À charger APRÈS demos.css : réutilise ses variables --rfd-… (clair/sombre) et ses éléments communs (badge, bouton…).
+   Préfixe « rfd-t- ». Jamais de texte cyan sur fond clair (le cyan sert de décor). Pensé d'abord pour le téléphone. */
+
+/* ---------- Les 3 usages ---------- */
+.rfd-t-usages { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.rfd-t-usages li {
+  display: grid; grid-template-columns: auto 1fr; column-gap: 12px; row-gap: 2px;
+  padding: 12px 14px; border: 1px solid var(--rfd-line); border-radius: 12px; background: var(--rfd-bg-alt);
+  box-shadow: inset 3px 0 0 var(--rfd-accent);
+}
+.rfd-t-num { grid-row: span 2; min-width: 1.6em; font: 700 .85rem/1.6 "Montserrat", system-ui, sans-serif; color: var(--rfd-text-2); }
+.rfd-t-usages strong { font-weight: 600; font-size: .95rem; }
+.rfd-t-usages li > span:last-child { font-size: .88rem; line-height: 1.5; color: var(--rfd-text-2); }
+
+/* ---------- Accès : bouton + QR code ---------- */
+.rfd-t-acces { display: flex; flex-wrap: wrap; align-items: center; gap: 20px; } /* passe à la ligne si la carte est étroite */
+.rfd-t-btn { flex: none; white-space: nowrap; text-decoration: none; text-align: center; }
+.rfd-t-qr { margin: 0; display: flex; align-items: center; gap: 12px; min-width: 0; }
+.rfd-t-qr img {
+  display: block; width: 148px; height: 148px; padding: 0; border-radius: 12px;
+  background: #FFFFFF; /* le code reste noir sur blanc, même en thème sombre, pour être lisible par tous les téléphones */
+  border: 1px solid var(--rfd-line);
+}
+.rfd-t-qr figcaption { max-width: 14em; font-size: .85rem; line-height: 1.45; color: var(--rfd-text-2); }
+
+.rfd-t-cta { margin: 0; font-size: .95rem; line-height: 1.5; }
+.rfd-t-cta a { color: var(--rfd-text); font-weight: 600; text-decoration: underline; text-decoration-color: var(--rfd-accent); text-decoration-thickness: 2px; text-underline-offset: 3px; }
+
+/* Téléphone : le bouton suffit (le QR code ne sert qu'à passer de l'ordinateur au téléphone). */
+@media (max-width: 640px), (pointer: coarse) and (max-width: 900px) {
+  .rfd-t-acces { display: block; }
+  .rfd-t-btn { display: flex; justify-content: center; width: 100%; white-space: normal; }
+  .rfd-t-qr { display: none; }
+}
